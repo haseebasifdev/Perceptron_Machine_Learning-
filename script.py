@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 import sys
+import csv
 
 # Reading data file
-data = pd.read_csv("datafile.csv")
+data = pd.read_csv("datafiles.csv")
 # getting input columns
-inputs = np.array(data[['x1', 'x2']])
+inputs = np.array(data[['x1', 'x2', 'x3', 'x4']])
 # make a list
 inputs.tolist()
 # getting output columns
@@ -20,7 +21,7 @@ class Perceptron(object):
     """Implements a perceptron network"""
     # constructer
 
-    def __init__(self, numberOfRows, lrnRt=1, epochs=100):
+    def __init__(self, numberOfRows, lrnRt=1, epochs=30):
         # Additind 1 for threshold or Bias value
         # And All Initialize with Zero
         self.W = np.zeros(numberOfRows+1)
@@ -34,15 +35,21 @@ class Perceptron(object):
     # predicter funtion
 
     def predict(self, input):
-        print("Inputs ", input)
+        # print("Inputs ", input)
         # inserting 1 for biased input
         input = np.insert(input, 0, 1)
-        print("Inputs with Bias", input)
+        # print("Inputs with Bias", input)
         # Sum of weights with input
-        sum = self.W.dot(input)
-        # checking for Activation orthreshold
+        sum = 0
+        for i in range(len(input)):
+            sum = sum+((self.W[i])*(input[i]))
+            # print("sum", sum)
+        # print("Weight======> ", self.W[0])
+        # print("inputs===>", len(input))
+        # sum = self.W.dot(input)
+        # # checking for Activation orthreshold
         ActivationOutput = self.Activation(sum)
-        print("Activation Function output: ", ActivationOutput)
+        # print("Activation Function output: ", ActivationOutput)
         # print("Return Value from Activation funtion ", ActivationOutput)
         return ActivationOutput
     #########################################
@@ -51,23 +58,25 @@ class Perceptron(object):
     def fit(self, X, actualOutput):
         # for loop number of Epoches
         for epoch in range(self.epochs):
-            print("================No of Epoches================ ", epoch)
+            print("========================================No of Epoches========================================> ", epoch)
+            print("Updated Weights: ", self.W)
             # Loop for number of columns
             for i in range(actualOutput.shape[0]):
                 predicted = self.predict(X[i])
                 # error calculation
                 err = actualOutput[i] - predicted
-                print("Error", err)
+                # print("Error", err)
                 # Updating weights
+                # write on CSV file
                 self.W = self.W + self.lr * err * np.insert(X[i], 0, 1)
-                print("Updated Weights: ", self.W)
+                # print("Updated Weights: ", self.W)
     #########################################
 
 
 ###################################################End OF Class###################################################
 
 # Creating object
-perceptron = Perceptron(numberOfRows=2)
+perceptron = Perceptron(numberOfRows=4)
 
 
 def learn():
@@ -80,12 +89,15 @@ def learn():
 if sys.argv[1] == "--learn":
     # calling learn funtion
     learn()
+
 elif sys.argv[1] == "--test":
     learn()
     # testing starts
+    print("=================================================Testing start here=================================================")
     for i in range(output.shape[0]):
         # output.shapes[0] for loop running according to number of columns in CSV file
-        print("output: ", output[i])
-        perceptron.predict(inputs[i])
+
+        prd = perceptron.predict(inputs[i])
+        print("inputs: ", inputs[i], "output: ",output[i], "predicteed: ", prd)
 else:
     print("No argument are given")
